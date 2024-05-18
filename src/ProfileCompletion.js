@@ -1,11 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-
 
 const ProfileCompletion = ({ onComplete }) => {
   const [fullName, setFullName] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+
+        if (currentUser) {
+          const idToken = await currentUser.getIdToken();
+
+          const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyCr-f56Ys0kA2-EqZETiNCF-ug3c9luTiA&idToken=${idToken}`);
+
+          if (response.ok) {
+            const userData = await response.json();
+            const user = userData.users[0];
+
+            if (user.displayName) {
+              setFullName(user.displayName);
+            }
+            if (user.photoUrl) {
+              setPhotoUrl(user.photoUrl);
+            }
+          } else {
+            const errorData = await response.json();
+            setError('Error fetching user profile: ' + errorData.error.message);
+          }
+        } else {
+          setError('No user is currently signed in.');
+        }
+      } catch (error) {
+        setError('Error fetching user profile: ' + error.message);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   const handleUpdateProfile = async () => {
     try {
