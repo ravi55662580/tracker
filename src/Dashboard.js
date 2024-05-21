@@ -1,33 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import ProfileCompletion from './ProfileCompletion'; // Assuming you have a ProfileCompletion component
+// Dashboard.js
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import ExpenseForm from './ExpenseForm';
 
-const Dashboard = () => {
-  const [profileComplete, setProfileComplete] = useState(false);
+function Dashboard() {
+  const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem('idToken');
+  const isProfileComplete = true; // This should be replaced with actual logic to check if the profile is complete
 
-  useEffect(() => {
-    // Function to check if the user's profile is complete
-    const checkProfileCompletion = () => {
-      // Assume you have a way to determine if the profile is complete, for example, checking if the user has a display name and photo URL
-      // You can replace this with your actual logic to check profile completion
-      const displayName = localStorage.getItem('displayName');
-      const photoUrl = localStorage.getItem('photoUrl');
-      return !!displayName && !!photoUrl; // Return true if both display name and photo URL exist
-    };
+  React.useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/login');
+    }
+  }, [isLoggedIn, navigate]);
 
-    // Call the function to check if the profile is complete
-    const isProfileComplete = checkProfileCompletion();
-    setProfileComplete(isProfileComplete);
-  }, []);
+  const handleCompleteProfile = () => {
+    navigate('/complete-profile');
+  };
 
   return (
-    <div>
-      {profileComplete ? (
-        <p>Welcome to Expense Tracker</p>
-      ) : (
-        <ProfileCompletion />
-      )}
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        {isProfileComplete ? (
+          <>
+            <h2 className="text-2xl font-bold mb-6 text-center">Welcome to Expense Tracker</h2>
+            <ExpenseForm />
+          </>
+        ) : (
+          <div>
+            <h2 className="text-2xl font-bold mb-6 text-center">Profile Incomplete</h2>
+            <p className="mb-4 text-center">Your profile is 50% complete.</p>
+            <button
+              onClick={handleCompleteProfile}
+              className="w-full bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+            >
+              Complete Profile
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
-};
+}
 
 export default Dashboard;

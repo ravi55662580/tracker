@@ -1,39 +1,33 @@
 // VerifyEmail.js
 import React, { useState } from 'react';
+import { sendVerificationEmail } from './Firebase'; // Import the function to send verification email
 
-const VerifyEmail = () => {
+function VerifyEmail() {
   const [error, setError] = useState('');
 
-  const handleVerifyEmail = async () => {
+  const handleSendVerificationEmail = async () => {
     try {
-      const idToken = ''; // Get the Firebase ID token of the current user
-      const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyCr-f56Ys0kA2-EqZETiNCF-ug3c9luTiA`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          requestType: 'VERIFY_EMAIL',
-          idToken: idToken,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError('Error sending email verification: ' + errorData.error.message);
-      }
-    } catch (error) {
-      setError('Error sending email verification: ' + error.message);
+      const idToken = localStorage.getItem('idToken');
+      await sendVerificationEmail(idToken); // Call the function to send verification email
+    } catch (err) {
+      setError(err.message);
     }
   };
 
   return (
-    <div className="verify-email-container">
-      <h2>Verify Email</h2>
-      {error && <p className="error-message">{error}</p>}
-      <button onClick={handleVerifyEmail}>Send Verification Email</button>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h2 className="text-2xl font-bold mb-6 text-center">Verify Your Email</h2>
+        {error && <div className="mb-4 text-red-600">{error}</div>}
+        <button
+          onClick={handleSendVerificationEmail}
+          className="w-full bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+        >
+          Send Verification Email
+        </button>
+      </div>
     </div>
   );
-};
+}
 
 export default VerifyEmail;
